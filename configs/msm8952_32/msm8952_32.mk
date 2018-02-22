@@ -12,7 +12,7 @@ AUDIO_FEATURE_ENABLED_EXTN_RESAMPLER := true
 AUDIO_FEATURE_ENABLED_FM_POWER_OPT := true
 AUDIO_FEATURE_ENABLED_PROXY_DEVICE := true
 AUDIO_FEATURE_ENABLED_VOICE_CONCURRENCY := true
-AUDIO_FEATURE_ENABLED_DS2_DOLBY_DAP := false
+AUDIO_FEATURE_ENABLED_DS2_DOLBY_DAP := true
 MM_AUDIO_ENABLED_SAFX := true
 DOLBY_ENABLE := false
 AUDIO_FEATURE_ENABLED_SSR := true
@@ -199,7 +199,7 @@ vendor.audio.pp.asphere.enabled=false
 
 #property to enable DS2 dap
 PRODUCT_PROPERTY_OVERRIDES += \
-vendor.audio.dolby.ds2.enabled=false
+vendor.audio.dolby.ds2.enabled=true
 
 #Audio voice concurrency related flags
 PRODUCT_PROPERTY_OVERRIDES += \

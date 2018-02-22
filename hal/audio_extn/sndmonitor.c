@@ -223,10 +223,8 @@ static int enum_sndcards()
         }
 
         ret = add_new_sndcard(atoi(ptr), fd);
-        if (ret != 0) {
-            close(fd);
+        if (ret != 0)
             continue;
-        }
 
         num_cards++;
 
@@ -253,10 +251,8 @@ static int enum_sndcards()
             continue;
 
         ret = add_new_sndcard(CPE_MAGIC_NUM+num_cpe, fd);
-        if (ret != 0) {
-            close(fd);
+        if (ret != 0)
             continue;
-        }
 
         num_cpe++;
         num_cards++;
@@ -623,11 +619,9 @@ int audio_extn_snd_mon_deinit()
 
     write(sndmonitor.intpipe[1], "Q", 1);
     pthread_join(sndmonitor.monitor_thread, (void **) NULL);
-    free_dev_events();
     listeners_deinit();
     free_sndcards();
-    close(sndmonitor.intpipe[0]);
-    close(sndmonitor.intpipe[1]);
+    free_dev_events();
     sndmonitor.initcheck = 0;
     return 0;
 }
@@ -641,13 +635,13 @@ int audio_extn_snd_mon_init()
     sndmonitor.initcheck = false;
 
     if (pipe(sndmonitor.intpipe) < 0)
-        goto pipe_error;
+        return -ENODEV;
 
     if (enum_sndcards() < 0)
-        goto enum_sncards_error;
+        return -ENODEV;
 
     if (listeners_init() < 0)
-        goto listeners_error;
+        return -ENODEV;
 
 #ifdef MONITOR_DEVICE_EVENTS
     enum_dev_events(); // failure here isn't fatal
@@ -658,20 +652,14 @@ int audio_extn_snd_mon_init()
                              monitor_thread_loop, NULL);
 
     if (ret) {
-        goto monitor_thread_create_error;
+        free_sndcards();
+        free_dev_events();
+        close(sndmonitor.intpipe[0]);
+        close(sndmonitor.intpipe[1]);
+        return -ENODEV;
     }
     sndmonitor.initcheck = true;
     return 0;
-
-monitor_thread_create_error:
-    listeners_deinit();
-listeners_error:
-    free_sndcards();
-enum_sncards_error:
-    close(sndmonitor.intpipe[0]);
-    close(sndmonitor.intpipe[1]);
-pipe_error:
-    return -ENODEV;
 }
 
 int audio_extn_snd_mon_register_listener(void *stream, snd_mon_cb cb)
